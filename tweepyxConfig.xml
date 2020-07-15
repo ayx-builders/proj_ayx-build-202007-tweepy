@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="tweepyx.py" SDKVersion="10.1" />
+  <GuiSettings Html="tweepyx.html" Icon="tweepyx.png" Help="" SDKVersion="10.1">
+    <InputConnections>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Tweepyx</Name>
+      <Description>Download Twitter data from the developer APIs with a subset of filters</Description>
+      <CategoryName>ayx_builders</CategoryName>
+      <SearchTags>python, sdk, twitter, tweepy, tweet, scrape</SearchTags>
+      <ToolVersion>1.00</ToolVersion>
+      <Author>tlarsendataguy</Author>
+      <Company></Company>
+      <Copyright>2020</Copyright>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>
