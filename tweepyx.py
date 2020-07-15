@@ -1,5 +1,6 @@
 import AlteryxPythonSDK as Sdk
 import xml.etree.ElementTree as Et
+import tweepy
 
 
 class AyxPlugin:
