@@ -17,6 +17,5 @@ class ParseTester(unittest.TestCase):
         self.assertIsNotNone(parsedTweet.Id)
 
 
-
 if __name__ == '__main__':
     unittest.main()

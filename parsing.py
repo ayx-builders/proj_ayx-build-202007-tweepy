@@ -1,42 +1,41 @@
 from datetime import datetime
 
+Fields = {
+    'Id': 'string',
+    'CreatedAt': 'datetime',
+    'Text': 'string',
+    'Source': 'string',
+    'InReplyToTweet': 'string',
+    'InReplyToUser': 'string',
+    'InReplyToScreenName': 'string',
+    'UserId': 'string',
+    'ScreenName': 'string',
+    'UserLocation': 'string',
+    'UserDescription': 'string',
+    'UserVerified': 'string',
+    'UserFollowers': 'int',
+    'UserFriends': 'int',
+    'UserFavorites': 'int',
+    'UserTweets': 'int',
+    'UserCreatedAt': 'datetime',
+    'Lon': 'decimal',
+    'Lat': 'decimal',
+    'PlaceType': 'string',
+    'PlaceName': 'string',
+    'PlaceFullName': 'string',
+    'PlaceCountryCode': 'string',
+    'PlaceCountry': 'string',
+    'PlaceCentroidLat': 'decimal',
+    'PlaceCentroidLon': 'decimal',
+    'RetweetId': 'string',
+    'IsRetweet': 'bool',
+    'RetweetCount': 'int',
+    'FavoriteCount': 'int',
+    'PossiblySensitive': 'bool',
+    'Language': 'string'
+}
 
 class ParsedTweet:
-    Fields = {
-        'Id': 'string',
-        'CreatedAt': 'datetime',
-        'Text': 'string',
-        'Source': 'string',
-        'InReplyToTweet': 'string',
-        'InReplyToUser': 'string',
-        'InReplyToScreenName': 'string',
-        'UserId': 'string',
-        'ScreenName': 'string',
-        'UserLocation': 'string',
-        'UserDescription': 'string',
-        'UserVerified': 'string',
-        'UserFollowers': 'int',
-        'UserFriends': 'int',
-        'UserFavorites': 'int',
-        'UserTweets': 'int',
-        'UserCreatedAt': 'datetime',
-        'Lon': 'decimal',
-        'Lat': 'decimal',
-        'PlaceType': 'string',
-        'PlaceName': 'string',
-        'PlaceFullName': 'string',
-        'PlaceCountryCode': 'string',
-        'PlaceCountry': 'string',
-        'PlaceCentroidLat': 'decimal',
-        'PlaceCentroidLon': 'decimal',
-        'RetweetId': 'string',
-        'IsRetweet': 'bool',
-        'RetweetCount': 'int',
-        'FavoriteCount': 'int',
-        'PossiblySensitive': 'bool',
-        'Language': 'string'
-    }
-
     def __init__(self, tweet):
         self.Id: str = tweet.id_str
         self.CreatedAt: datetime = tweet.created_at
@@ -69,13 +68,17 @@ class ParsedTweet:
             self.PlaceFullName: str = place.full_name
             self.PlaceCountryCode: str = place.country_code
             self.PlaceCountry: str = place.country
-            coordinates = place.coordinates
-            coord1 = coordinates[0][0]
-            coord2 = coordinates[0][2]
-            lat = (coord1[0] + coord2[0]) / 2
-            lon = (coord1[1] + coord2[1]) / 2
-            self.PlaceCentroidLat = lat
-            self.PlaceCentroidLon = lon
+            if hasattr(place, 'coordinates'):
+                coordinates = place.coordinates
+                coord1 = coordinates[0][0]
+                coord2 = coordinates[0][2]
+                lat = (coord1[0] + coord2[0]) / 2
+                lon = (coord1[1] + coord2[1]) / 2
+                self.PlaceCentroidLat = lat
+                self.PlaceCentroidLon = lon
+            else:
+                self.PlaceCentroidLat = None
+                self.PlaceCentroidLon = None
         else:
             self.PlaceType = None
             self.PlaceName = None
@@ -93,5 +96,8 @@ class ParsedTweet:
             self.IsRetweet = False
         self.RetweetCount: int = tweet.retweet_count
         self.FavoriteCount: int = tweet.favorite_count
-        self.PossiblySensitive: bool = tweet.possibly_sensitive
+        if hasattr(tweet, 'possibly_sensitive'):
+            self.PossiblySensitive: bool = tweet.possibly_sensitive
+        else:
+            self.PossiblySensitive = None
         self.Language: str = tweet.lang
