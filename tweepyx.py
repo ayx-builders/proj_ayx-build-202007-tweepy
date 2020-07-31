@@ -103,7 +103,6 @@ class AyxPlugin:
             creator.reset()
             tweet = parsing.ParsedTweet(raw_tweet)
             for key in parsing.Fields:
-                self.display_info_msg(key)
                 value = getattr(tweet, key)
                 field: Sdk.Field = info.get_field_by_name(key)
                 if value is None:
