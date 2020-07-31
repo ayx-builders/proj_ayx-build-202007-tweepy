@@ -12,7 +12,17 @@
     <fieldset>
       <legend class='blueTitle'>XMSG("Tweepyx")</legend>
       <div class=''>
-        <label>XMSG("Tweepyx")</label>
+        <label>XMSG("From:")</label>
+		<ayx data-ui-props="{type: 'DateTimeField'}" data-item-props="{dataName: 'From', dataType: 'SimpleDate'}"></ayx>
+        <label>XMSG("To:")</label>
+		<ayx data-ui-props="{type: 'DateTimeField'}" data-item-props="{dataName: 'To', dataType: 'SimpleDate'}"></ayx>
+        <label>XMSG("Keywords:")</label>
+
+		<ayx data-ui-props="{type: 'TextArea', rows: 5, placeholder: '&#34;exact phrase&#34;\nOR all of these words\nOR &#34;exact phrase&#34; and all of these words'}" data-item-props="{dataName: 'Keywords', dataType: 'SimpleString'}"></ayx>
+        <label>XMSG("Mentions:")</label>
+		<ayx data-ui-props="{type: 'TextArea', rows: 5, placeholder: 'withoutLeadingAT\nOR\n@withLeadingAT'}" data-item-props="{dataName: 'Mentions', dataType: 'SimpleString'}"></ayx>
+        <label>XMSG("Hashtags:")</label>
+		<ayx data-ui-props="{type: 'TextArea', rows: 5, placeholder: 'withoutHashtag\nOR\n#withHashtag'}" data-item-props="{dataName: 'Hashtags', dataType: 'SimpleString'}"></ayx>
       </div>
     </fieldset>
   </form>
