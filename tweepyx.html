@@ -8,23 +8,52 @@
   </script>
 </head>
 <body>
-  <form>
-    <fieldset>
-      <legend class='blueTitle'>XMSG("Tweepyx")</legend>
       <div class=''>
-        <label>XMSG("From:")</label>
-		<ayx data-ui-props="{type: 'DateTimeField'}" data-item-props="{dataName: 'From', dataType: 'SimpleDate'}"></ayx>
-        <label>XMSG("To:")</label>
-		<ayx data-ui-props="{type: 'DateTimeField'}" data-item-props="{dataName: 'To', dataType: 'SimpleDate'}"></ayx>
-        <label>XMSG("Keywords:")</label>
+        <label>XMSG("Consumer API Key:")</label>
+		<ayx data-ui-props="{type: 'TextBox', password: true}" data-item-props="{dataName: 'ConsumerKey', dataType: 'SimpleString', password: true, encryptionMode: 'user'}"></ayx>
+      <br>
+      <br>
+        <label>XMSG("Consumer API Secret:")</label>
+		<ayx data-ui-props="{type: 'TextBox', password: true}" data-item-props="{dataName: 'ConsumerSecret', dataType: 'SimpleString', password: true, encryptionMode: 'user'}"></ayx>
+      <br>
+      <br>
+        <label>XMSG("Access Token:")</label>
+		<ayx data-ui-props="{type: 'TextBox', password: true}" data-item-props="{dataName: 'AccessToken', dataType: 'SimpleString', password: true, encryptionMode: 'user'}"></ayx>
+      <br>
+      <br>
+        <label>XMSG("Access Token Secret:")</label>
+		<ayx data-ui-props="{type: 'TextBox', password: true}" data-item-props="{dataName: 'AccessSecret', dataType: 'SimpleString', password: true, encryptionMode: 'user'}"></ayx>
 
+        <br>
+        <br>
+          <!--<a href="https://developer.twitter.com">credentials found at developer.twitter.com</a>-->
+        <br>
+        <br>
+        <label>XMSG("Date range:")</label>
+          <table>
+              <tr>
+                  <td>
+		            <ayx data-ui-props="{type: 'DateTimeField'}" data-item-props="{dataName: 'From', dataType: 'SimpleDate'}"></ayx>
+                  </td>
+                  <td>
+                     <label>XMSG(" to ")</label>
+                  </td>
+                  <td>
+                    <ayx data-ui-props="{type: 'DateTimeField'}" data-item-props="{dataName: 'To', dataType: 'SimpleDate'}"></ayx>
+                  </td>
+              </tr>
+          </table>
+      <br>
+        <label>XMSG("Keywords:")</label>
 		<ayx data-ui-props="{type: 'TextArea', rows: 5, placeholder: '&#34;exact phrase&#34;\nOR all of these words\nOR &#34;exact phrase&#34; and all of these words'}" data-item-props="{dataName: 'Keywords', dataType: 'SimpleString'}"></ayx>
+      <br>
+      <br>
         <label>XMSG("Mentions:")</label>
 		<ayx data-ui-props="{type: 'TextArea', rows: 5, placeholder: 'withoutLeadingAT\nOR\n@withLeadingAT'}" data-item-props="{dataName: 'Mentions', dataType: 'SimpleString'}"></ayx>
+      <br>
+      <br>
         <label>XMSG("Hashtags:")</label>
 		<ayx data-ui-props="{type: 'TextArea', rows: 5, placeholder: 'withoutHashtag\nOR\n#withHashtag'}" data-item-props="{dataName: 'Hashtags', dataType: 'SimpleString'}"></ayx>
       </div>
-    </fieldset>
-  </form>
 </body>
 </html>

@@ -10,7 +10,7 @@ class ParseTester(unittest.TestCase):
         auth.set_access_token(c.access_token, c.access_token_secret)
 
         api = tweepy.API(auth)
-        results = api.search("(from:tlarsendataguy)", tweet_mode="extended")
+        results = api.search("(alteryx) AND until:2020-07-31 AND since:2020-07-30", tweet_mode="extended")
         tweet = results[0]
         parsedTweet = parsing.ParsedTweet(tweet)
 

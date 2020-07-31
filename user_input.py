@@ -2,6 +2,9 @@ import re
 
 
 def parse_keywords(user_input):
+    if user_input == '':
+        return ''
+
     split_user_input = split_newlines(user_input)
     line = len(split_user_input)-1
     while line >= 0:
@@ -19,6 +22,9 @@ def parse_keywords(user_input):
 
 
 def parse_mentions(user_input):
+    if user_input == '':
+        return ''
+
     split_user_input = split_newlines(user_input)
     line = len(split_user_input)-1
     while line >= 0:
@@ -36,6 +42,9 @@ def parse_mentions(user_input):
 
 
 def parse_hashtags(user_input):
+    if user_input == '':
+        return ''
+
     split_user_input = split_newlines(user_input)
     line = len(split_user_input)-1
     while line >= 0:

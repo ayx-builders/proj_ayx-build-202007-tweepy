@@ -12,7 +12,7 @@ Fields = {
     'ScreenName': 'string',
     'UserLocation': 'string',
     'UserDescription': 'string',
-    'UserVerified': 'string',
+    'UserVerified': 'bool',
     'UserFollowers': 'int',
     'UserFriends': 'int',
     'UserFavorites': 'int',
