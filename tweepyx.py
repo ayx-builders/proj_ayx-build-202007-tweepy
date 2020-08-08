@@ -121,6 +121,8 @@ class AyxPlugin:
                 if field_type == 'bool':
                     field.set_from_bool(creator, value)
 
+            info.get_field_by_name('Query').set_from_string(creator, self.Query)
+
             blob = creator.finalize_record()
             self.Output.push_record(blob)
 
@@ -154,4 +156,5 @@ class AyxPlugin:
                 info.add_field(key, Sdk.FieldType.double, source=self.label)
             if fieldType == 'bool':
                 info.add_field(key, Sdk.FieldType.bool, source=self.label)
+        info.add_field('Query', Sdk.FieldType.v_wstring, size=1024, source=self.label)
         return info
