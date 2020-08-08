@@ -1,20 +1,17 @@
 import unittest
-import tweepy
-import credentials as c
 import parsing
+import dill
+import tweepy
 
 
 class ParseTester(unittest.TestCase):
     def test_parsing_tweet(self):
-        auth = tweepy.OAuthHandler(c.consumer_key, c.consumer_secret)
-        auth.set_access_token(c.access_token, c.access_token_secret)
+        with open("parse_test_examples.dill", 'rb') as dill_file:
+            tweets = dill.load(dill_file)
 
-        api = tweepy.API(auth)
-        results = api.search("(alteryx) AND until:2020-07-31 AND since:2020-07-30", tweet_mode="extended")
-        tweet = results[0]
-        parsedTweet = parsing.ParsedTweet(tweet)
-
-        self.assertIsNotNone(parsedTweet.Id)
+        for tweet in tweets:
+            parsed = parsing.ParsedTweet(tweet)
+            self.assertIsNotNone(parsed.Id)
 
 
 if __name__ == '__main__':

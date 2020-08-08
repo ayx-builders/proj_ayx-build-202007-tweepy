@@ -56,8 +56,8 @@ class ParsedTweet:
         self.UserCreatedAt: datetime = tweet.user.created_at
         coords = tweet.coordinates
         if coords is not None:
-            self.Lon: float = coords.coordinates[0]
-            self.Lat: float = coords.coordinates[1]
+            self.Lon: float = coords['coordinates'][0]
+            self.Lat: float = coords['coordinates'][1]
         else:
             self.Lat = None
             self.Lon = None
