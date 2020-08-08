@@ -1,7 +1,6 @@
 import unittest
 import parsing
 import dill
-import tweepy
 
 
 class ParseTester(unittest.TestCase):
@@ -9,9 +8,12 @@ class ParseTester(unittest.TestCase):
         with open("parse_test_examples.dill", 'rb') as dill_file:
             tweets = dill.load(dill_file)
 
+        index = 0
         for tweet in tweets:
+            print(index)
             parsed = parsing.ParsedTweet(tweet)
             self.assertIsNotNone(parsed.Id)
+            index += 1
 
 
 if __name__ == '__main__':
