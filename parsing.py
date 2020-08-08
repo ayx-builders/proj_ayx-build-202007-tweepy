@@ -19,25 +19,7 @@ Fields = {
     'FavoriteCount': 'int',
     'PossiblySensitive': 'bool',
     'Language': 'string',
-    'OriginalTweetType': 'string',
-    'OriginalTweetId': 'string',
-    'OriginalTweetCreatedAt': 'datetime',
-    'OriginalTweetText': 'string',
-    'OriginalTweetSource': 'string',
-    'OriginalTweetUserId': 'string',
-    'OriginalTweetScreenName': 'string',
-    'OriginalTweetUserLocation': 'string',
-    'OriginalTweetUserDescription': 'string',
-    'OriginalTweetUserVerified': 'bool',
-    'OriginalTweetUserFollowers': 'int',
-    'OriginalTweetUserFriends': 'int',
-    'OriginalTweetUserFavorites': 'int',
-    'OriginalTweetUserTweets': 'int',
-    'OriginalTweetUserCreatedAt': 'datetime',
-    'OriginalTweetRetweetCount': 'int',
-    'OriginalTweetFavoriteCount': 'int',
-    'OriginalTweetPossiblySensitive': 'bool',
-    'OriginalTweetLanguage': 'string',
+    'TweetType': 'string',
 
 
     # these fields are not often used so we will exclude them for now.  Can be added back later
@@ -50,11 +32,6 @@ Fields = {
     #'PlaceCountry': 'string',
     #'PlaceCentroidLat': 'decimal',
     #'PlaceCentroidLon': 'decimal',
-    'InReplyToTweet': 'string',
-    'InReplyToUser': 'string',
-    'InReplyToScreenName': 'string',
-    'RetweetId': 'string',
-    'IsRetweet': 'bool',
 }
 
 
@@ -107,18 +84,19 @@ class ParsedTweet:
         if not recurse:
             return
 
-        self.OriginalTweetType = "None"
+        self.TweetType = "Tweet"
         self.OriginalTweet = None
         if hasattr(tweet, 'retweeted_status'):
-            self.OriginalTweetType = "Retweet"
+            self.TweetType = "Retweet"
             self.OriginalTweet = ParsedTweet(tweet.retweeted_status, recurse=False)
+            self.Text = None
             return
         if tweet.is_quote_status:
-            self.OriginalTweetType = "Retweet with Comment"
+            self.TweetType = "Retweet with Comment"
             self.OriginalTweet = ParsedTweet(tweet.quoted_status, recurse=False)
             return
         if tweet.in_reply_to_status_id_str is not None:
-            self.OriginalTweetType = "Reply"
+            self.TweetType = "Reply"
             id = tweet.in_reply_to_status_id_str
             user_id = tweet.in_reply_to_user_id_str
             screen_name = tweet.in_reply_to_screen_name

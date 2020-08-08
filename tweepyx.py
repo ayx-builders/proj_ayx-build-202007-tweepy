@@ -113,7 +113,7 @@ class AyxPlugin:
                 if field_type == 'string':
                     field.set_from_string(creator, value)
                 if field_type == 'datetime':
-                    field.set_from_string(creator, value.strftime("%Y-%m-%d"))
+                    field.set_from_string(creator, value.strftime("%Y-%m-%d %H:%M:%S"))
                 if field_type == 'int':
                     field.set_from_int64(creator, value)
                 if field_type == 'decimal':

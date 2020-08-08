@@ -8,12 +8,11 @@ class ParseTester(unittest.TestCase):
         with open("parse_test_examples.dill", 'rb') as dill_file:
             tweets = dill.load(dill_file)
 
-        index = 0
         for tweet in tweets:
-            print(index)
             parsed = parsing.ParsedTweet(tweet)
             self.assertIsNotNone(parsed.Id)
-            index += 1
+            self.assertTrue((parsed.TweetType == 'Retweet' and parsed.Text is None) or
+                            (parsed.TweetType != 'Retweet' and parsed.Text is not None))
 
 
 if __name__ == '__main__':
