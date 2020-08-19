@@ -106,6 +106,7 @@ class AyxPlugin:
             ('FavoriteCount', FieldType.Integer): Query().get('favorite_count').finalize(),
             ('PossiblySensitive', FieldType.Bool): Query().get('possibly_sensitive').finalize(),
             ('Language', FieldType.String): Query().get('lang').finalize(),
+            ('Url', FieldType.String): Query().custom(tweet_url).finalize(),
             ('OriginalTweetId', FieldType.String): orig_tweet().get('id_str').finalize(),
             ('OriginalTweetCreatedAt', FieldType.Datetime): orig_tweet().get('created_at').finalize(),
             ('OriginalTweetText', FieldType.String): orig_tweet().custom(get_full_text).finalize(),
@@ -124,6 +125,7 @@ class AyxPlugin:
             ('OriginalTweetFavoriteCount', FieldType.Integer): orig_tweet().get('favorite_count').finalize(),
             ('OriginalTweetPossiblySensitive', FieldType.Bool): orig_tweet().get('possibly_sensitive').finalize(),
             ('OriginalTweetLanguage', FieldType.String): orig_tweet().get('lang').finalize(),
+            ('OriginalTweetUrl', FieldType.String): orig_tweet().custom(tweet_url).finalize(),
         })
         self.Output.init(data_mapper.Info)
 
@@ -201,3 +203,11 @@ def get_original_tweet(obj):
             "screen_name": reply_screen_name,
         }
     }
+
+
+def tweet_url(obj):
+    screen_name = Query().get('user').get('screen_name').finalize().get_from(obj)
+    tweet_id = Query().get('id_str').finalize().get_from(obj)
+    if screen_name is None or tweet_id is None:
+        return None
+    return "https://twitter.com/" + screen_name + "/status/" + tweet_id
