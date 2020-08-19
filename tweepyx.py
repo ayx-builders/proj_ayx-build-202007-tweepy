@@ -1,11 +1,9 @@
 import datetime
-
 import AlteryxPythonSDK as Sdk
 import xml.etree.ElementTree as Et
 import tweepy
-
-import parsing
 import user_input
+from obj_query import AyxDataMap, FieldType, Query
 
 
 def none_to_empty_string(value):
@@ -50,7 +48,7 @@ class AyxPlugin:
                 "All credentials must be provided.  You can find your credentials at developer.twitter.com")
 
         from_date = xml_parser.find('From').text
-        to_date = xml_parser.find('To').text
+        to_date = datetime.datetime.strptime(xml_parser.find('To').text, "%Y-%m-%d") + datetime.timedelta(days=1)
         keywords = user_input.parse_keywords(none_to_empty_string(xml_parser.find('Keywords').text))
         mentions = user_input.parse_mentions(none_to_empty_string(xml_parser.find('Mentions').text))
         hashtags = user_input.parse_hashtags(none_to_empty_string(xml_parser.find('Hashtags').text))
@@ -67,7 +65,7 @@ class AyxPlugin:
             self.display_error_msg("At least one of keywords, mentions, or hashtags must be provided.")
 
         query_elements.append("since:" + from_date)
-        query_elements.append("until:" + to_date)
+        query_elements.append("until:" + datetime.datetime.strftime(to_date, "%Y-%m-%d"))
         self.Query = " AND ".join(query_elements)
 
         # Getting the output anchor from Config.xml by the output connection name
@@ -80,14 +78,33 @@ class AyxPlugin:
         return True
 
     def pi_push_all_records(self, n_record_limit: int) -> bool:
-        info = self.createRecordInfo()
-        self.Output.init(info)
+        data_mapper = AyxDataMap(self.alteryx_engine, self.label, {
+            ('Id', FieldType.String): Query().get('id_str').finalize(),
+            ('TweetType', FieldType.String): Query().custom(get_tweet_type).finalize(),
+            ('CreatedAt', FieldType.Datetime): Query().get('created_at').finalize(),
+            ('Text', FieldType.String): Query().get('full_text').finalize(),
+            ('Source', FieldType.String): Query().get('source').finalize(),
+            ('UserId', FieldType.String): Query().get('user').get('id_str').finalize(),
+            ('ScreenName', FieldType.String): Query().get('user').get('screen_name').finalize(),
+            ('UserLocation', FieldType.String): Query().get('user').get('location').finalize(),
+            ('UserDescription', FieldType.String): Query().get('user').get('description').finalize(),
+            ('UserVerified', FieldType.Bool): Query().get('user').get('verified').finalize(),
+            ('UserFollowers', FieldType.Integer): Query().get('user').get('followers_count').finalize(),
+            ('UserFriends', FieldType.Integer): Query().get('user').get('friends_count').finalize(),
+            ('UserFavorites', FieldType.Integer): Query().get('user').get('favourites_count').finalize(),
+            ('UserTweets', FieldType.Integer): Query().get('user').get('statuses_count').finalize(),
+            ('UserCreatedAt', FieldType.Datetime): Query().get('user').get('created_at').finalize(),
+            ('RetweetCount', FieldType.Integer): Query().get('retweet_count').finalize(),
+            ('FavoriteCount', FieldType.Integer): Query().get('favorite_count').finalize(),
+            ('PossiblySensitive', FieldType.Bool): Query().get('possibly_sensitive').finalize(),
+            ('Language', FieldType.String): Query().get('lang').finalize(),
+            ('OriginalTweetId', FieldType.String): Query().get('original_tweet_id').finalize()
+        })
+        self.Output.init(data_mapper.Info)
 
         if self.alteryx_engine.get_init_var(self.n_tool_id, "UpdateOnly") == "True":
             self.Output.close()
             return True
-
-        creator: Sdk.RecordCreator = info.construct_record_creator()
 
         consumer_key = self.alteryx_engine.decrypt_password(self.ConsumerKey)
         consumer_secret = self.alteryx_engine.decrypt_password(self.ConsumerSecret)
@@ -100,30 +117,7 @@ class AyxPlugin:
         api = tweepy.API(auth, wait_on_rate_limit=True)
 
         for raw_tweet in tweepy.Cursor(api.search, q=self.Query, tweet_mode="extended").items():
-            creator.reset()
-            tweet = parsing.ParsedTweet(raw_tweet)
-            for key in parsing.Fields:
-                value = getattr(tweet, key)
-                field: Sdk.Field = info.get_field_by_name(key)
-                if value is None:
-                    field.set_null(creator)
-                    continue
-
-                field_type = parsing.Fields[key]
-                if field_type == 'string':
-                    field.set_from_string(creator, value)
-                if field_type == 'datetime':
-                    field.set_from_string(creator, value.strftime("%Y-%m-%d %H:%M:%S"))
-                if field_type == 'int':
-                    field.set_from_int64(creator, value)
-                if field_type == 'decimal':
-                    field.set_from_double(creator, value)
-                if field_type == 'bool':
-                    field.set_from_bool(creator, value)
-
-            info.get_field_by_name('Query').set_from_string(creator, self.Query)
-
-            blob = creator.finalize_record()
+            blob = data_mapper.transfer(raw_tweet)
             self.Output.push_record(blob)
 
         self.Output.close()
@@ -142,19 +136,15 @@ class AyxPlugin:
         self.Output.assert_close()
         return
 
-    def createRecordInfo(self):
-        info = Sdk.RecordInfo(self.alteryx_engine)
-        for key in parsing.Fields:
-            fieldType = parsing.Fields[key]
-            if fieldType == 'string':
-                info.add_field(key, Sdk.FieldType.v_wstring, size=512, source=self.label)
-            if fieldType == 'datetime':
-                info.add_field(key, Sdk.FieldType.datetime, source=self.label)
-            if fieldType == 'int':
-                info.add_field(key, Sdk.FieldType.int64, source=self.label)
-            if fieldType == 'decimal':
-                info.add_field(key, Sdk.FieldType.double, source=self.label)
-            if fieldType == 'bool':
-                info.add_field(key, Sdk.FieldType.bool, source=self.label)
-        info.add_field('Query', Sdk.FieldType.v_wstring, size=1024, source=self.label)
-        return info
+
+def get_tweet_type(obj):
+    retweeted_status = Query().get('retweeted_status').finalize().get_from(obj)
+    is_quote_status = Query().get('is_quote_status').finalize().get_from(obj)
+    in_reply_to_status_id = Query().get('in_reply_to_status_id_str').finalize().get_from(obj)
+    if retweeted_status is not None:
+        return 'Retweet'
+    if is_quote_status is not None and is_quote_status is True:
+        return 'Retweet with Comment'
+    if in_reply_to_status_id is not None:
+        return 'Reply'
+    return 'Tweet'

@@ -1,1 +1,2 @@
 tweepy
+git+https://github.com/tlarsen7572/obj_query.git
