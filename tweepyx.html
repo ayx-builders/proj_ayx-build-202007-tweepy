@@ -45,15 +45,16 @@
           </table>
       <br>
         <label>XMSG("Keywords:")</label>
-		<ayx data-ui-props="{type: 'TextArea', rows: 5, placeholder: '&#34;exact phrase&#34;\nOR all of these words\nOR &#34;exact phrase&#34; and all of these words'}" data-item-props="{dataName: 'Keywords', dataType: 'SimpleString'}"></ayx>
+		<ayx data-ui-props="{type: 'TextArea', rows: 5, placeholder: '&#34;exact phrase&#34;\nall of these words\n&#34;exact phrase&#34; and all of these words'}" data-item-props="{dataName: 'Keywords', dataType: 'SimpleString'}"></ayx>
       <br>
       <br>
-        <label>XMSG("Mentions:")</label>
-		<ayx data-ui-props="{type: 'TextArea', rows: 5, placeholder: 'withoutLeadingAT\nOR\n@withLeadingAT'}" data-item-props="{dataName: 'Mentions', dataType: 'SimpleString'}"></ayx>
+        <label>XMSG("User Accounts:")</label>
+		<ayx data-ui-props="{type: 'RadioGroup'}" data-item-props="{dataName: 'UsersType', dataType: 'StringSelector', optionList: [{value: 'Mentions', label: 'Mentions'}, {value: 'From', label: 'Tweets From'}, {value: 'To', label: 'Tweets To'}, {value: 'From/To', label: 'Tweets From/To'}]}"></ayx>
+		<ayx data-ui-props="{type: 'TextArea', rows: 5, placeholder: 'withoutLeadingAT\n@withLeadingAT'}" data-item-props="{dataName: 'Users', dataType: 'SimpleString'}"></ayx>
       <br>
       <br>
         <label>XMSG("Hashtags:")</label>
-		<ayx data-ui-props="{type: 'TextArea', rows: 5, placeholder: 'withoutHashtag\nOR\n#withHashtag'}" data-item-props="{dataName: 'Hashtags', dataType: 'SimpleString'}"></ayx>
+		<ayx data-ui-props="{type: 'TextArea', rows: 5, placeholder: 'withoutHashtag\n#withHashtag'}" data-item-props="{dataName: 'Hashtags', dataType: 'SimpleString'}"></ayx>
       <br>
       <br>
         <label>XMSG("Language:")</label>

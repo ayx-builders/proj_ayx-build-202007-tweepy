@@ -51,25 +51,36 @@ class AyxPlugin:
         to_date = datetime.datetime.strptime(xml_parser.find('To').text, "%Y-%m-%d") + datetime.timedelta(days=1)
         language = xml_parser.find('Language').text
         exclude_retweets = xml_parser.find("ExcludeRetweets").text == 'True'
+        users_type = xml_parser.find("UsersType").text
         keywords = user_input.parse_keywords(none_to_empty_string(xml_parser.find('Keywords').text))
-        mentions = user_input.parse_mentions(none_to_empty_string(xml_parser.find('Mentions').text))
+        users = none_to_empty_string(xml_parser.find('Users').text)
         hashtags = user_input.parse_hashtags(none_to_empty_string(xml_parser.find('Hashtags').text))
 
         query_elements = []
         if keywords != '':
             query_elements.append(keywords)
-        if mentions != '':
-            query_elements.append(mentions)
+        if users != '':
+            if users_type is None or users_type == '':
+                self.display_error_msg('no selection was made to identify how to search for users')
+                return False
+            if users_type == 'Mentions':
+                query_elements.append(user_input.parse_mentions(users))
+            elif users_type == 'From':
+                query_elements.append(user_input.parse_from(users))
+            elif users_type == 'To':
+                query_elements.append(user_input.parse_to(users))
+            elif users_type == 'From/To':
+                query_elements.append(user_input.parse_from_to(users))
         if hashtags != '':
             query_elements.append(hashtags)
+
+        if len(query_elements) == 0:
+            self.display_error_msg("At least one of keywords, users, or hashtags must be provided.")
+
         if language != 'All':
             query_elements.append("lang:" + language)
         if exclude_retweets:
             query_elements.append("-filter:retweets")
-
-        if len(query_elements) == 0:
-            self.display_error_msg("At least one of keywords, mentions, or hashtags must be provided.")
-
         query_elements.append("since:" + from_date)
         query_elements.append("until:" + datetime.datetime.strftime(to_date, "%Y-%m-%d"))
         self.Query = " AND ".join(query_elements)
