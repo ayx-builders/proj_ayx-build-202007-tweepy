@@ -50,6 +50,7 @@ class AyxPlugin:
         from_date = xml_parser.find('From').text
         to_date = datetime.datetime.strptime(xml_parser.find('To').text, "%Y-%m-%d") + datetime.timedelta(days=1)
         language = xml_parser.find('Language').text
+        exclude_retweets = xml_parser.find("ExcludeRetweets").text == 'True'
         keywords = user_input.parse_keywords(none_to_empty_string(xml_parser.find('Keywords').text))
         mentions = user_input.parse_mentions(none_to_empty_string(xml_parser.find('Mentions').text))
         hashtags = user_input.parse_hashtags(none_to_empty_string(xml_parser.find('Hashtags').text))
@@ -63,6 +64,8 @@ class AyxPlugin:
             query_elements.append(hashtags)
         if language != 'All':
             query_elements.append("lang:" + language)
+        if exclude_retweets:
+            query_elements.append("-filter:retweets")
 
         if len(query_elements) == 0:
             self.display_error_msg("At least one of keywords, mentions, or hashtags must be provided.")
@@ -81,6 +84,8 @@ class AyxPlugin:
         return True
 
     def pi_push_all_records(self, n_record_limit: int) -> bool:
+        def orig_tweet():
+            return Query().custom(get_original_tweet)
         data_mapper = AyxDataMap(self.alteryx_engine, self.label, {
             ('Id', FieldType.String): Query().get('id_str').finalize(),
             ('TweetType', FieldType.String): Query().custom(get_tweet_type).finalize(),
@@ -101,7 +106,24 @@ class AyxPlugin:
             ('FavoriteCount', FieldType.Integer): Query().get('favorite_count').finalize(),
             ('PossiblySensitive', FieldType.Bool): Query().get('possibly_sensitive').finalize(),
             ('Language', FieldType.String): Query().get('lang').finalize(),
-            ('OriginalTweetId', FieldType.String): Query().custom(get_original_tweet).get('id_str').finalize(),
+            ('OriginalTweetId', FieldType.String): orig_tweet().get('id_str').finalize(),
+            ('OriginalTweetCreatedAt', FieldType.Datetime): orig_tweet().get('created_at').finalize(),
+            ('OriginalTweetText', FieldType.String): orig_tweet().custom(get_full_text).finalize(),
+            ('OriginalTweetSource', FieldType.String): orig_tweet().get('source').finalize(),
+            ('OriginalTweetUserId', FieldType.String): orig_tweet().get('user').get('id_str').finalize(),
+            ('OriginalTweetScreenName', FieldType.String): orig_tweet().get('user').get('screen_name').finalize(),
+            ('OriginalTweetUserLocation', FieldType.String): orig_tweet().get('user').get('location').finalize(),
+            ('OriginalTweetUserDescription', FieldType.String): orig_tweet().get('user').get('description').finalize(),
+            ('OriginalTweetUserVerified', FieldType.Bool): orig_tweet().get('verified').finalize(),
+            ('OriginalTweetUserFollowers', FieldType.Integer): orig_tweet().get('user').get('followers_count').finalize(),
+            ('OriginalTweetUserFriends', FieldType.Integer): orig_tweet().get('user').get('friends_count').finalize(),
+            ('OriginalTweetUserFavorites', FieldType.Integer): orig_tweet().get('user').get('favourites_count').finalize(),
+            ('OriginalTweetUserTweets', FieldType.Integer): orig_tweet().get('user').get('statuses_count').finalize(),
+            ('OriginalTweetUserCreatedAt', FieldType.Datetime): orig_tweet().get('user').get('created_at').finalize(),
+            ('OriginalTweetRetweetCount', FieldType.Integer): orig_tweet().get('retweet_count').finalize(),
+            ('OriginalTweetFavoriteCount', FieldType.Integer): orig_tweet().get('favorite_count').finalize(),
+            ('OriginalTweetPossiblySensitive', FieldType.Bool): orig_tweet().get('possibly_sensitive').finalize(),
+            ('OriginalTweetLanguage', FieldType.String): orig_tweet().get('lang').finalize(),
         })
         self.Output.init(data_mapper.Info)
 
@@ -170,6 +192,12 @@ def get_original_tweet(obj):
         return quoted_status
 
     reply_id = Query().get('in_reply_to_status_id_str').finalize().get_from(obj)
+    reply_user_id = Query().get('in_reply_to_status_user_id_str').finalize().get_from(obj)
+    reply_screen_name = Query().get('in_reply_to_status_screen_name').finalize().get_from(obj)
     return {
-        "id_str": reply_id
+        "id_str": reply_id,
+        "user": {
+            "id_str": reply_user_id,
+            "screen_name": reply_screen_name,
+        }
     }
