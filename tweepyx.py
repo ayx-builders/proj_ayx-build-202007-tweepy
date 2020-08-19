@@ -49,6 +49,7 @@ class AyxPlugin:
 
         from_date = xml_parser.find('From').text
         to_date = datetime.datetime.strptime(xml_parser.find('To').text, "%Y-%m-%d") + datetime.timedelta(days=1)
+        language = xml_parser.find('Language').text
         keywords = user_input.parse_keywords(none_to_empty_string(xml_parser.find('Keywords').text))
         mentions = user_input.parse_mentions(none_to_empty_string(xml_parser.find('Mentions').text))
         hashtags = user_input.parse_hashtags(none_to_empty_string(xml_parser.find('Hashtags').text))
@@ -60,6 +61,8 @@ class AyxPlugin:
             query_elements.append(mentions)
         if hashtags != '':
             query_elements.append(hashtags)
+        if language != 'All':
+            query_elements.append("lang:" + language)
 
         if len(query_elements) == 0:
             self.display_error_msg("At least one of keywords, mentions, or hashtags must be provided.")
@@ -82,7 +85,7 @@ class AyxPlugin:
             ('Id', FieldType.String): Query().get('id_str').finalize(),
             ('TweetType', FieldType.String): Query().custom(get_tweet_type).finalize(),
             ('CreatedAt', FieldType.Datetime): Query().get('created_at').finalize(),
-            ('Text', FieldType.String): Query().get('full_text').finalize(),
+            ('Text', FieldType.String): Query().custom(get_full_text).finalize(),
             ('Source', FieldType.String): Query().get('source').finalize(),
             ('UserId', FieldType.String): Query().get('user').get('id_str').finalize(),
             ('ScreenName', FieldType.String): Query().get('user').get('screen_name').finalize(),
@@ -98,7 +101,7 @@ class AyxPlugin:
             ('FavoriteCount', FieldType.Integer): Query().get('favorite_count').finalize(),
             ('PossiblySensitive', FieldType.Bool): Query().get('possibly_sensitive').finalize(),
             ('Language', FieldType.String): Query().get('lang').finalize(),
-            ('OriginalTweetId', FieldType.String): Query().get('original_tweet_id').finalize()
+            ('OriginalTweetId', FieldType.String): Query().custom(get_original_tweet).get('id_str').finalize(),
         })
         self.Output.init(data_mapper.Info)
 
@@ -148,3 +151,25 @@ def get_tweet_type(obj):
     if in_reply_to_status_id is not None:
         return 'Reply'
     return 'Tweet'
+
+
+def get_full_text(obj):
+    retweeted_status = Query().get('retweeted_status').finalize().get_from(obj)
+    if retweeted_status is not None:
+        return None
+    return Query().get('full_text').finalize().get_from(obj)
+
+
+def get_original_tweet(obj):
+    retweeted_status = Query().get('retweeted_status').finalize().get_from(obj)
+    if retweeted_status is not None:
+        return retweeted_status
+
+    quoted_status = Query().get('quoted_status').finalize().get_from(obj)
+    if quoted_status is not None:
+        return quoted_status
+
+    reply_id = Query().get('in_reply_to_status_id_str').finalize().get_from(obj)
+    return {
+        "id_str": reply_id
+    }
